@@ -1,0 +1,25 @@
+{
+  "name": "mediasoup-custom",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "mon": "nodemon app.js",
+    "lint": "npx prettier --write ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "httpolyglot": "^0.1.2",
+    "mediasoup": "^3.8.2",
+    "mediasoup-client": "^3.6.37",
+    "socket.io": "^4.1.3"
+  },
+  "devDependencies": {
+    "prettier": "2.3.2"
+  }
+}
