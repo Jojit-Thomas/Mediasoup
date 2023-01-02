@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import styled from "styled-components"
 import * as mediasoupClient from 'mediasoup-client';
 import { CustomSocket } from './App'
@@ -8,10 +8,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ToastContainer, ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import moment from "moment"
 
 interface Props {
   socket: CustomSocket
 }
+
+interface Chat {
+  name: string,
+  message: string,
+  date: string,
+  from: string
+}
+
 
 const mediaType = {
   audio: 'Audio',
@@ -34,20 +43,20 @@ let producerLabel = new Map();
 let videoConsumerCountRef = 0;
 
 
-
-
 const errorToastOptions: ToastOptions = {
   position: 'bottom-right',
-  autoClose: 8000,
+  autoClose: 5000,
   pauseOnHover: true,
+  pauseOnFocusLoss: false,
   draggable: true,
   type: "error"
 }
 
 const infoToastOptions: ToastOptions = {
   position: 'bottom-left',
-  autoClose: 3000,
+  autoClose: 1500,
   pauseOnHover: true,
+  pauseOnFocusLoss: false,
   draggable: true,
   type: "info"
 }
@@ -616,6 +625,7 @@ const Lobby: React.FC<Props> = ({ socket }) => {
 
     socket.on('message', function (data) {
       console.log("message : ", data)
+      if (data && data.from !== socket.id) setChats(prev => prev ? [...prev, data] : [data])
     })
 
     socket.on(
@@ -695,6 +705,37 @@ const Lobby: React.FC<Props> = ({ socket }) => {
 
   const [isZoomed, setIsZoomed] = useState("")
 
+  const [input, setInput] = useState("");
+
+  const [chats, setChats] = useState<Chat[]>()
+
+  const sendChat = () => {
+    if (input.trim() === "") {
+      toast("Message is empty!", errorToastOptions)
+      return
+    }
+    const chat: Chat = {
+      date: new Date().toString(),
+      from: socket.id,
+      message: input,
+      name: formValues.name,
+    }
+    setChats(prev => prev ? [...prev, chat] : [chat])
+    console.log("socket : ", )
+    socket.request("message", chat)
+    setInput("")
+  }
+
+  const messageBox = useRef(null)
+
+  useEffect(() => {
+    if (messageBox.current) {
+      //@ts-ignore
+      messageBox.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chats]);
+
+
 
   return (
     <>
@@ -760,7 +801,7 @@ const Lobby: React.FC<Props> = ({ socket }) => {
                     </select>
                   </div>
                 </Header>
-                <div className='w-full h-[calc(100%-4.5rem)] '>
+                <div className='w-full h-[calc(100%-5.5rem)] '>
                   <div id='' className="w-11/12 h-[85%]  mt-[2%] grid gap-x-3 gap-y-3 m-auto justify-items-center sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     <video id="userLocalMediaEL" autoPlay className='w-11/12 h-11/12 xsm:w-64 xsm:h-56 object-cover shadow-[0px_0px_6px_5px_rgba(255,255,255,0.6)] rounded-2xl' src="" poster={posterImg}></video>
                     {
@@ -812,18 +853,79 @@ const Lobby: React.FC<Props> = ({ socket }) => {
                   </div>
                 </div>
               </div>
-              <div className='sm:w-0 lg:w-[30rem] h-full bg-red-300'>
-
+              <div className='w-[30rem] hidden md:block h-screen bg-slate-100 '>
+                <div className='flex justify-around align-middle h-12 mx-2 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]'>
+                  <h3 className='font-mono font-semibold text-xl my-auto mr-3'>Group Chat</h3>
+                  <h4 className='font-mono my-auto bg-gray-600 text-white-1000  rounded-md py-1 px-2 ' >Messages</h4>
+                  <h4 className='font-mono my-auto  ' >Participants</h4>
+                </div>
+                <div className='h-[calc(100%-7rem)] w-full overflow-y-scroll' >
+                  <h3 className='text-green-500'>This chat will only continue while you are participating.</h3>
+                  {
+                    chats?.map(chat => {
+                      return (<ChatBubble chat={chat} socketId={socket.id}/>)
+                    })
+                  }
+                  <div ref={messageBox}></div>
+                </div>
+                <div className='h-12'>
+                  <input onKeyDown={(e) => e.key == "Enter" && sendChat()} type="tex relativet" value={input} onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type something here..."
+                    className="w-[90%] h-10 pl-1 text-sm rounded-md m-auto pb-0 text-gray-900 appearance-none peer focus:outline-none bg-slate-300"
+                  ></input>
+                </div>
               </div>
-
             </div>
           </Fragment>
         }
       </Container>
-        <ToastContainer />
+      <ToastContainer />
     </>
   )
 }
+
+
+const ChatBubble = ({ chat, socketId }: { chat: Chat, socketId : string }) => {
+
+  if (chat.from === socketId) {
+    return (
+      <div className="flex mb-6 flex-row-reverse pr-3">
+        <div className=' relative'>
+          {/* <span className='text-xs w-12 truncate overflow-hidden inline-block absolute -top-4 right-12'>{chat.name}</span> */}
+          <div className='flex '>
+            <div className='bg-sky-200 rounded-t-2xl rounded-bl-2xl px-3 py-2 mr-2  '>
+              {chat.message}
+            </div>
+            <div className='w-9 h-9 mt-auto rounded-full bg-slate-700'></div>
+
+          </div>
+          <span className='text-xs truncate overflow-hidden inline-block absolute -bottom-4 right-12'>{handleDate(chat.date)}</span>
+        </div>
+      </div>
+    )
+  } else {
+    return (
+      <div className="flex mb-6 pl-3">
+        <div className=' relative'>
+          {/* <span className='text-xs w-12 truncate overflow-hidden inline-block absolute -top-4 right-12'>{chat.name}</span> */}
+          <div className='flex flex-row-reverse'>
+            <div className='bg-slate-200 rounded-t-2xl rounded-br-2xl px-3 py-2 ml-2  '>
+              {chat.message}
+            </div>
+            <div className='w-9 h-9 mt-auto rounded-full bg-slate-700'></div>
+          </div>
+          <span className='text-xs truncate overflow-hidden inline-block absolute -bottom-4 left-12'>{handleDate(chat.date)}</span>
+        </div>
+      </div>
+    )
+  }
+}
+
+const handleDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return moment(date).fromNow();
+}
+
 
 const Header = styled.div`
 `
@@ -851,6 +953,8 @@ radial-gradient(at 0% 50%, hsla(355,100%,93%,1) 0px, transparent 50%),
 radial-gradient(at 80% 50%, hsla(340,100%,76%,1) 0px, transparent 50%),
 radial-gradient(at 0% 100%, hsla(269,100%,77%,1) 0px, transparent 50%),
 radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%);
+// background-image: linear-gradient(to right bottom, #333464, #402f5f, #4a2b58, #532651, #592148, #532247, #4e2245, #482243, #372543, #28263e, #1f2536, #1b232c);
+// background: linear-gradient(90deg, hsla(0, 0%, 36%, 1) 0%, hsla(178, 44%, 32%, 1) 92%);
 `
 
 const Box = styled.div`
