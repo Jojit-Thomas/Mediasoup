@@ -18,6 +18,10 @@ const io = require('socket.io')(httpServer, {cors : {origin : "*"}})
 
 app.use(cors({origin : "*"}))
 
+app.get('/test', (req, res, next) => {
+  res.send("Test Success.....")
+})
+
 httpServer.listen(config.listenPort, () => {
   console.log('Listening on http://' + config.listenIp + ':' + config.listenPort)
 })
