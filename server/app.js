@@ -206,12 +206,9 @@ io.on('connection', (socket) => {
     cb(roomList.get(socket.room_id).toJson())
   })
 
-  socket.on('message', ({ message }) => {
-    const chat = {
-      name: `${roomList.get(socket.room_id) && roomList.get(socket.room_id).getPeers().get(socket.id).name}`,
-      message : message,
-      date : new Date(),
-    }
+  socket.on('message', (chat) => {
+    console.log({name: `${roomList.get(socket.room_id) && roomList.get(socket.room_id).getPeers().get(socket.id).name}`})
+    console.log("chat : ",socket.id)
     io.to(socket.room_id).emit("message", chat)
   })
 
