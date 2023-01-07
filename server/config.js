@@ -32,7 +32,7 @@ module.exports = {
       logLevel: 'warn',
       logTags: [
         'info',
-        'ice',
+        'ice', 
         'dtls',
         'rtp',
         'srtp',
@@ -76,3 +76,5 @@ module.exports = {
     }
   }
 }
+
+// console.log(getLocalIp())

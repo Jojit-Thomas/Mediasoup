@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import mediasoupReducer from '../features/mediasoupSlice'
 import { enableMapSet } from 'immer';
+import formValueReducers from '../features/formValues';
 
 enableMapSet();
 
@@ -8,6 +9,7 @@ enableMapSet();
 export const store = configureStore({
   reducer: {
     mediasoup : mediasoupReducer,
+    formValues : formValueReducers
   },
 })
 
