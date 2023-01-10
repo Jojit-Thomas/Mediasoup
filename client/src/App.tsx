@@ -39,7 +39,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path='/lobby' index element={<Chat key="asdf" socket={socket} />} />
+          <Route path='/' index element={<Chat key="1" socket={socket} />} />
           {/* <Route path='/lobby/:roomId' index element={<Chat key="asdf" socket={socket} />} /> */}
           <Route path='/test' element={<Test socket={socket} />} />
           <Route path='*' element={<h1 className='text-3xl font-bold'>Not found...</h1>} />
