@@ -1,0 +1,10 @@
+{
+  apps : [
+    {
+      name      : "meet-jojit-5000",
+      script    : "npx",
+      interpreter: "none",
+      args: "serve -s build -p 5000"
+    }
+  ]
+}

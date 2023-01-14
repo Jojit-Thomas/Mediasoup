@@ -18,8 +18,8 @@ const getLocalIp = () => {
 }
 
 module.exports = {
-  listenIp: '172.31.34.222',
-  listenPort: 3003,
+  listenIp: '127.0.0.1',
+  listenPort: 5001,
   sslCrt: '../ssl/cert.pem',
   sslKey: '../ssl/key.pem',
 
@@ -67,8 +67,8 @@ module.exports = {
     webRtcTransport: {
       listenIps: [
         {
-          ip: '172.31.34.222',
-          announcedIp: "13.114.210.67" // replace by public IP address
+          ip: '127.0.0.1',
+          announcedIp: "65.0.6.89" // replace by public IP address
         }
       ],
       maxIncomingBitrate: 1500000,
