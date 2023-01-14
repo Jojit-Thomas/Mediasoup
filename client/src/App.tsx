@@ -5,7 +5,7 @@ import io, { Socket } from 'socket.io-client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Test from './Text';
 
-const socketIO: any = io("wss://api.jojit.ml");
+const socketIO: any = io("wss://api.meet.jojit.ml");
 // const socketIO: any = io("ws://localhost:3003");
 
 export class CustomSocket extends Socket {
